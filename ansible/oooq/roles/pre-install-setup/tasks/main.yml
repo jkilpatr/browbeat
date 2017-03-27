@@ -6,6 +6,14 @@
 
 - name: Copy browbeat to the undercloud
   synchronize: "src={{ local_working_dir }}/browbeat dest={{ ansible_env.HOME }}/ use_ssh_args=yes"
+  ignore_errors: True
+  register: copy_result
+
+- name: Clone browbeat if copy failed
+  git:
+    repo: 'https://github.com/openstack/browbeat'
+    dest: '{{ ansible_env.HOME }}/browbeat'
+  when: copy_result|failed
 
 - name: Set hosts gen as executable
   shell: "chmod +x {{ ansible_env.HOME }}/browbeat/ansible/generate_tripleo_hostfile.sh"
